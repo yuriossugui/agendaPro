@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\AppointmentController;
 
 Route::get('/', function () {
     return response()->json(['message' => 'Hello world!']);
@@ -18,5 +19,9 @@ Route::middleware('jwt')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/refresh', [AuthController::class, 'refresh']);
     
+    Route::get('services/all', [ServiceController::class, 'all']);
     Route::apiResource('services', ServiceController::class);
+
+    Route::get('appointments/all', [AppointmentController::class, 'all']);
+    Route::apiResource('appointments', AppointmentController::class);
 });

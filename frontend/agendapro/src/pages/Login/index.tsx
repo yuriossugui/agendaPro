@@ -21,9 +21,9 @@ const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0b1220]">
-      <Card className="w-full max-w-md bg-[#0f1724] border border-[#0a0f18] shadow-lg">
-        <CardHeader className="px-8 pt-8">
-          <CardTitle className="text-2xl text-gray-100">Entrar</CardTitle>
+      <Card className="w-full max-w-md bg-[#0f1724] border border-[#925FE2] shadow-lg">
+        <CardHeader className="text-center px-8 pt-8">
+          <CardTitle className="text-2xl text-[#925FE2]">Entrar</CardTitle>
         </CardHeader>
 
         <CardContent className="px-8 pb-4">

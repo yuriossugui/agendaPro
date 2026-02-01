@@ -101,17 +101,17 @@ const Service: React.FC = () => {
 
   return (
     <div className="min-h-screen p-6 bg-[#0b1220]">
-      <Card className="bg-[#0f1724] border border-[#0a0f18] shadow-sm">
+      <Card className="bg-[#0f1724] border border-[#925FE2] shadow-sm">
         <CardHeader className="flex items-center justify-between">
           <CardTitle className="text-gray-100">Serviços</CardTitle>
 
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="flex items-center gap-2 bg-[#071428] hover:bg-[#0b3b8c]">
+              <Button className="flex items-center gap-2 bg-[#0b3b8c] hover:bg-[#925FE2]">
                 <Plus size={16} /> Novo serviço
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-lg">
+            <DialogContent className="sm:max-w-sm text-gray-100 bg-[#0f1724] border border-[#925FE2]">
               <DialogHeader>
                 <DialogTitle>Novo serviço</DialogTitle>
                 <DialogDescription>
@@ -168,7 +168,7 @@ const Service: React.FC = () => {
                 </div>
 
                 <DialogFooter>
-                  <Button type="submit" className="bg-[#071428] hover:bg-[#0b3b8c]">
+                  <Button type="submit" className="bg-[#0b3b8c] hover:bg-[#925FE2]">
                     Salvar
                   </Button>
                 </DialogFooter>
@@ -181,12 +181,12 @@ const Service: React.FC = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Serviço</TableHead>
-                <TableHead>Descrição</TableHead>
-                <TableHead>Duração</TableHead>
-                <TableHead>Preço</TableHead>
-                <TableHead>Ações</TableHead>
+                <TableHead className="text-gray-400">ID</TableHead>
+                <TableHead className="text-gray-400">Serviço</TableHead>
+                <TableHead className="text-gray-400">Descrição</TableHead>
+                <TableHead className="text-gray-400">Duração</TableHead>
+                <TableHead className="text-gray-400">Preço</TableHead>
+                <TableHead className="text-gray-400">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

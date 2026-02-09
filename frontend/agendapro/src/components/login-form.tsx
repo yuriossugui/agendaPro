@@ -1,4 +1,5 @@
 import { useForm } from "react-hook-form";
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@/schemas/login-schema";
 import type { LoginFormData } from "@/schemas/login-schema";
@@ -12,12 +13,16 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { useNavigate } from "react-router-dom";
+import { loginRequest } from "@/services/auth-service";
 
 export function LoginForm({
   className,
 
   ...props
 }: React.ComponentProps<"div">) {
+  const [apiError, setApiError] = useState<string | null>(null);
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -26,9 +31,22 @@ export function LoginForm({
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = (data: LoginFormData) => {
-    console.log(data);
-  };
+const onSubmit = async (data: LoginFormData) => {
+  setApiError(null);
+
+  try {
+    const response = await loginRequest(data);
+
+    localStorage.setItem("token", response.token);
+
+    navigate("/service");
+
+  } catch (error: any) {
+    const message = error?.response?.data?.message ?? "Erro ao realizar login";
+
+    setApiError(message);
+  }
+};
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -42,6 +60,11 @@ export function LoginForm({
                   Faça login na sua conta
                 </p>
               </div>
+              {apiError && (
+                <div className="rounded-md bg-red-100 px-3 py-2 text-sm text-red-700">
+                  {apiError}
+                </div>
+              )}
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input

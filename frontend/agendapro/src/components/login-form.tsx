@@ -37,12 +37,14 @@ const onSubmit = async (data: LoginFormData) => {
   try {
     const response = await loginRequest(data);
 
-    localStorage.setItem("token", response.token);
+    localStorage.setItem("token",response.token);
+    const expirationTime = Date.now() + (response.expires_in * 1000);
+    localStorage.setItem("expires_in", expirationTime.toString());
 
     navigate("/service");
 
   } catch (error: any) {
-    const message = error?.response?.data?.message ?? "Erro ao realizar login";
+    const message = error?.response?.data?.error ?? "Erro ao realizar login";
 
     setApiError(message);
   }

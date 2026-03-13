@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { useNavigate } from "react-router-dom";
 import { loginRequest } from "@/services/auth-service";
+import { Link } from "react-router-dom";
 
 export function LoginForm({
   className,
@@ -98,7 +99,7 @@ const onSubmit = async (data: LoginFormData) => {
                 <Button type="submit">Login</Button>
               </Field>
               <FieldDescription className="text-center">
-                <span>Não tem uma conta?</span> <a href="#">Cadastre-se</a>
+                <span>Não tem uma conta?</span> <Link to="/register">Cadastre-se</Link>
               </FieldDescription>
             </FieldGroup>
           </form>

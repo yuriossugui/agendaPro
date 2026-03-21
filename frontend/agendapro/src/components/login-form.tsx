@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input"
 import { useNavigate } from "react-router-dom";
 import { loginRequest } from "@/services/auth-service";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 export function LoginForm({
   className,
@@ -38,14 +39,21 @@ const onSubmit = async (data: LoginFormData) => {
   try {
     const response = await loginRequest(data);
 
-    localStorage.setItem("token",response.token);
+    localStorage.setItem("token", response.token);
     const expirationTime = Date.now() + (response.expires_in * 1000);
     localStorage.setItem("expires_in", expirationTime.toString());
 
     navigate("/service");
 
-  } catch (error: any) {
-    const message = error?.response?.data?.error ?? "Erro ao realizar login";
+  } catch (error) {
+    let message = "Erro ao realizar login";
+
+    if (axios.isAxiosError(error) && error.response?.data) {
+      const errorData = error.response.data as { message?: string; error?: string };
+      message = errorData.message || errorData.error || message;
+    } else if (error instanceof Error) {
+      message = error.message;
+    }
 
     setApiError(message);
   }

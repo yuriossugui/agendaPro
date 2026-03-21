@@ -21,13 +21,13 @@ export function SignupForm({
           <form className="p-6 md:p-8">
             <FieldGroup>
               <div className="flex flex-col items-center gap-2 text-center">
-                <h1 className="text-2xl font-bold">Create your account</h1>
+                <h1 className="text-2xl font-bold">Crie sua conta</h1>
                 <p className="text-sm text-balance text-muted-foreground">
-                  Enter your email below to create your account
+                  Digite seu e-mail abaixo para criar sua conta
                 </p>
               </div>
               <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
+                <FieldLabel htmlFor="email">E-mail</FieldLabel>
                 <Input
                   id="email"
                   type="email"
@@ -35,32 +35,32 @@ export function SignupForm({
                   required
                 />
                 <FieldDescription>
-                  We&apos;ll use this to contact you. We will not share your
-                  email with anyone else.
+                  Usaremos isso para contatá-lo. Não compartilharemos seu
+                  e-mail com ninguém.
                 </FieldDescription>
               </Field>
               <Field>
                 <Field className="grid grid-cols-2 gap-4">
                   <Field>
-                    <FieldLabel htmlFor="password">Password</FieldLabel>
+                    <FieldLabel htmlFor="password">Senha</FieldLabel>
                     <Input id="password" type="password" required />
                   </Field>
                   <Field>
                     <FieldLabel htmlFor="confirm-password">
-                      Confirm Password
+                      Confirmar Senha
                     </FieldLabel>
                     <Input id="confirm-password" type="password" required />
                   </Field>
                 </Field>
                 <FieldDescription>
-                  Must be at least 8 characters long.
+                  Deve ter pelo menos 8 caracteres.
                 </FieldDescription>
               </Field>
               <Field>
-                <Button type="submit">Create Account</Button>
+                <Button type="submit">Criar Conta</Button>
               </Field>
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
-                Or continue with
+                Ou continue com
               </FieldSeparator>
               <Field className="grid grid-cols-3 gap-4">
                 <Button variant="outline" type="button">
@@ -92,7 +92,7 @@ export function SignupForm({
                 </Button>
               </Field>
               <FieldDescription className="text-center">
-                Already have an account? <a href="#">Sign in</a>
+                Já tem uma conta? <a href="#">Fazer login</a>
               </FieldDescription>
             </FieldGroup>
           </form>
@@ -106,8 +106,8 @@ export function SignupForm({
         </CardContent>
       </Card>
       <FieldDescription className="px-6 text-center">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
+        Ao clicar em continuar, você concorda com nossos <a href="#">Termos de Serviço</a>{" "}
+        e <a href="#">Política de Privacidade</a>.
       </FieldDescription>
     </div>
   )

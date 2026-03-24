@@ -3,6 +3,7 @@ import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import Service from "./pages/Service";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Settings from "./pages/Settings";
 
 function App() {
   return (
@@ -13,6 +14,11 @@ function App() {
         <Route path="/service" element={
           <ProtectedRoute>
             <Service />
+          </ProtectedRoute>
+          } />
+          <Route path="/settings" element={
+          <ProtectedRoute>
+            <Settings />
           </ProtectedRoute>
           } />
         <Route path="/" element={<Navigate to="/login" />} />

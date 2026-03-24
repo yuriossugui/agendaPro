@@ -17,17 +17,3 @@ export type ServiceItem = {
   updated_at?: string;
   deleted_at?: string | null;
 };
-
-export type Row = {
-  id: number;
-  user_id: number;
-  service_id: number;
-  start_time: string;
-  end_time: string;
-  status: string;
-  created_at?: string;
-  updated_at?: string;
-  deleted_at?: string | null;
-  user: User;
-  service: ServiceItem;
-};

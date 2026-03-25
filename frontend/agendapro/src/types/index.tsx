@@ -18,6 +18,20 @@ export type ServiceItem = {
   deleted_at?: string | null;
 };
 
+export type AppointmentItem = {
+  id: number;
+  user_id: number;
+  service_id: number;
+  start_time: string;
+  end_time: string;
+  status: "scheduled" | "completed" | "cancelled" | "no-show";
+  created_at?: string;
+  updated_at?: string;
+  deleted_at?: string | null;
+  user: User;
+  service: ServiceItem;
+};
+
 export type PaginatedResponse<T> = {
   current_page: number;
   data: T[];

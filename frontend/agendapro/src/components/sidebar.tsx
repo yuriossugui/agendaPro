@@ -5,6 +5,7 @@ import {
   X,
   Calendar,
   Settings,
+  Wrench,
   LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,11 @@ export function Sidebar({ isOpen = true, onClose, onCollapseChange }: SidebarPro
     {
       label: "Serviços",
       href: "/service",
+      icon: Wrench,
+    },
+    {
+      label: "Agendamentos",
+      href: "/appointment",
       icon: Calendar,
     },
     {

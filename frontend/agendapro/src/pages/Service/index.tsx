@@ -9,7 +9,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Layout } from "@/components/layout";
 import type { ServiceItem, PaginatedResponse } from "@/types";
 import { cn } from "@/lib/utils";

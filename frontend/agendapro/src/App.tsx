@@ -4,6 +4,7 @@ import Register from "@/pages/Register";
 import Service from "./pages/Service";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Settings from "./pages/Settings";
+import Appointment from "./pages/Appointment";
 
 function App() {
   return (
@@ -19,6 +20,11 @@ function App() {
           <Route path="/settings" element={
           <ProtectedRoute>
             <Settings />
+          </ProtectedRoute>
+          } />
+          <Route path="/appointment" element={
+          <ProtectedRoute>
+            <Appointment />
           </ProtectedRoute>
           } />
         <Route path="/" element={<Navigate to="/login" />} />

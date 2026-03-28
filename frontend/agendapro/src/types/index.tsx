@@ -52,3 +52,15 @@ export type PaginatedResponse<T> = {
   to: number;
   total: number;
 };
+
+export interface ApiResponse<T> {
+  message: string;
+  data: T;
+}
+
+export interface CreateServicePayload {
+  name: string,
+  duration_minutes: number,
+  price: number,
+  description: string
+}

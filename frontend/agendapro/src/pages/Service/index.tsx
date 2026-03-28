@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Trash2, Edit, AlertCircle, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Trash2, Edit, AlertCircle, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Table,
   TableHeader,
@@ -13,7 +13,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Layout } from "@/components/layout";
 import type { ServiceItem, PaginatedResponse } from "@/types";
 import { cn } from "@/lib/utils";
-import { getServicesRequest } from "@/services/service-service";
+import { createServiceRequest, getServicesRequest } from "@/services/service-service";
+import { CreateServiceDialog } from "@/components/create-service-dialog";
+import { ToastContainer, useToast } from "@/components/ui/toast";
+import type { ServiceFormData } from "@/schemas/service-schema";
 import axios from "axios";
 
 const ServiceContent: React.FC = () => {
@@ -22,6 +25,7 @@ const ServiceContent: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [paginationData, setPaginationData] = useState<PaginatedResponse<ServiceItem> | null>(null);
+  const { toasts, addToast, removeToast } = useToast();
 
   useEffect(() => {
     loadServices(currentPage);
@@ -81,18 +85,49 @@ const ServiceContent: React.FC = () => {
     console.log("Editando agendamento:", id);
   };
 
+  const handleServiceCreated = async (data: ServiceFormData) => {
+    try {
+      const response = await createServiceRequest(data);
+
+      addToast({
+        type: "success",
+        message: response.message || "Serviço cadastrado com sucesso!",
+        duration: 3000,
+      });
+
+      loadServices(currentPage);
+    } catch (err) {
+      let errorMessage = "Erro ao cadastrar serviço";
+
+      if (axios.isAxiosError(err) && err.response?.data) {
+        const errorData = err.response.data as { message?: string; error?: string };
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+
+      addToast({
+        type: "error",
+        message: errorMessage,
+        duration: 4000,
+      });
+
+      setError(errorMessage);
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {/* Toast Container */}
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Serviços</h1>
           <p className="text-gray-600 mt-2">Gerencie todos os seus serviços</p>
         </div>
-        <Button className="gap-2 bg-blue-600 hover:bg-blue-700">
-          <Plus className="w-4 h-4" />
-          Novo Serviço
-        </Button>
+        <CreateServiceDialog onServiceCreated={handleServiceCreated} />
       </div>
 
       {/* Error Alert */}

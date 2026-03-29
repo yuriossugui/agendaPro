@@ -64,3 +64,10 @@ export interface CreateServicePayload {
   price: number,
   description: string
 }
+
+export interface UpdateServicePayload {
+  name? : string;
+  description?: string;
+  duration_minutes?: number;
+  price?: number;
+}

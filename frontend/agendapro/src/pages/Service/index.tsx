@@ -13,10 +13,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Layout } from "@/components/layout";
 import type { ServiceItem, PaginatedResponse } from "@/types";
 import { cn } from "@/lib/utils";
-import { createServiceRequest, getServicesRequest } from "@/services/service-service";
+import { createServiceRequest, getServicesRequest, updateServiceRequest } from "@/services/service-service";
 import { CreateServiceDialog } from "@/components/create-service-dialog";
+import { EditServiceDialog } from "@/components/edit-service-dialog";
 import { ToastContainer, useToast } from "@/components/ui/toast";
 import type { ServiceFormData } from "@/schemas/service-schema";
+import type { UpdateServiceFormData } from "@/schemas/update-service-schema";
 import axios from "axios";
 
 const ServiceContent: React.FC = () => {
@@ -25,6 +27,8 @@ const ServiceContent: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [paginationData, setPaginationData] = useState<PaginatedResponse<ServiceItem> | null>(null);
+  const [editingService, setEditingService] = useState<ServiceItem | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const { toasts, addToast, removeToast } = useToast();
 
   useEffect(() => {
@@ -80,9 +84,56 @@ const ServiceContent: React.FC = () => {
     setAppointments(appointments.filter((appointment) => appointment.id !== id));
   };
 
-  const handleEdit = (id: number) => {
-    // TODO: Implementar lógica de edição
-    console.log("Editando agendamento:", id);
+  const handleEdit = (service: ServiceItem) => {
+    setEditingService(service);
+    setEditDialogOpen(true);
+  };
+
+  const handleEditDialogOpenChange = (open: boolean) => {
+    setEditDialogOpen(open);
+    if (!open) {
+      setEditingService(null);
+    }
+  };
+
+  const handleServiceUpdated = async (data: UpdateServiceFormData) => {
+    try{
+
+      if (!editingService) {
+        throw new Error("Nenhum serviço selecionado para edição");
+      }
+
+      const response = await updateServiceRequest(editingService.id,data);
+
+      addToast({
+        type: "success",
+        message: response.message || "Serviço Atualizado com sucesso!",
+        duration: 3000,
+      });
+
+      setEditDialogOpen(false);
+      setEditingService(null);
+
+      loadServices(currentPage);
+
+    } catch (err) {
+      let errorMessage = "Erro ao atualizar serviço";
+
+      if (axios.isAxiosError(err) && err.response?.data) {
+        const errorData = err.response.data as { message?: string; error?: string };
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+
+      addToast({
+        type: "error",
+        message: errorMessage,
+        duration: 4000,
+      });
+
+      setError(errorMessage);
+    }
   };
 
   const handleServiceCreated = async (data: ServiceFormData) => {
@@ -223,7 +274,7 @@ const ServiceContent: React.FC = () => {
                                 size="sm"
                                 variant="outline"
                                 className="h-9 w-9 p-0 hover:bg-blue-50 border-blue-200"
-                                onClick={() => handleEdit(appointment.id)}
+                                onClick={() => handleEdit(appointment)}
                                 title="Editar"
                               >
                                 <Edit className="w-4 h-4 text-blue-600" />
@@ -311,6 +362,16 @@ const ServiceContent: React.FC = () => {
             </Card>
           )}
         </>
+      )}
+
+      {/* Edit Service Dialog */}
+      {editingService && (
+        <EditServiceDialog
+          service={editingService}
+          isOpen={editDialogOpen}
+          onOpenChange={handleEditDialogOpenChange}
+          onServiceUpdated={handleServiceUpdated}
+        />
       )}
     </div>
   );

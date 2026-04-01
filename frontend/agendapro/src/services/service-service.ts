@@ -18,3 +18,8 @@ export async function updateServiceRequest(id: number,data: UpdateServicePayload
   const response = await api.put<ApiResponse<ServiceItem>>(`/services/${id}`, data);
   return response.data;
 }
+
+export async function deleteServiceRequest(id: number){
+  const response = await api.delete<ApiResponse<void>>(`/services/${id}`);
+  return response.data;
+}

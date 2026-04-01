@@ -10,10 +10,18 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Layout } from "@/components/layout";
 import type { ServiceItem, PaginatedResponse } from "@/types";
 import { cn } from "@/lib/utils";
-import { createServiceRequest, getServicesRequest, updateServiceRequest } from "@/services/service-service";
+import { createServiceRequest, getServicesRequest, updateServiceRequest, deleteServiceRequest } from "@/services/service-service";
 import { CreateServiceDialog } from "@/components/create-service-dialog";
 import { EditServiceDialog } from "@/components/edit-service-dialog";
 import { ToastContainer, useToast } from "@/components/ui/toast";
@@ -29,6 +37,9 @@ const ServiceContent: React.FC = () => {
   const [paginationData, setPaginationData] = useState<PaginatedResponse<ServiceItem> | null>(null);
   const [editingService, setEditingService] = useState<ServiceItem | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [serviceToDelete, setServiceToDelete] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { toasts, addToast, removeToast } = useToast();
 
   useEffect(() => {
@@ -81,7 +92,47 @@ const ServiceContent: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
-    setAppointments(appointments.filter((appointment) => appointment.id !== id));
+    setServiceToDelete(id);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (serviceToDelete === null) return;
+
+    setIsDeleting(true);
+    try{
+      const response = await deleteServiceRequest(serviceToDelete);
+      
+      addToast({
+        type: "success",
+        message: response.message || "Serviço Excluído com sucesso!",
+        duration: 3000,
+      });
+
+      setDeleteConfirmOpen(false);
+      setServiceToDelete(null);
+      loadServices(currentPage);
+
+    }catch(err){
+      let errorMessage = "Erro ao excluir serviço";
+
+      if (axios.isAxiosError(err) && err.response?.data) {
+        const errorData = err.response.data as { message?: string; error?: string };
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+
+      addToast({
+        type: "error",
+        message: errorMessage,
+        duration: 4000,
+      });
+
+      setError(errorMessage);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const handleEdit = (service: ServiceItem) => {
@@ -373,6 +424,44 @@ const ServiceContent: React.FC = () => {
           onServiceUpdated={handleServiceUpdated}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-red-600">Confirmar Exclusão</DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja excluir este serviço? Esta ação não pode ser desfeita.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-3 sm:gap-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setDeleteConfirmOpen(false)}
+              disabled={isDeleting}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleConfirmDelete}
+              disabled={isDeleting}
+              className="gap-2"
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Excluindo...
+                </>
+              ) : (
+                "Excluir"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -21,3 +21,8 @@ export async function registerRequest(data: RegisterFormData){
 
   return response.data;
 }
+
+export async function getUserRequest(){
+  const response = await api.get("/user");
+  return response.data;
+}

@@ -32,6 +32,16 @@ export type AppointmentItem = {
   service: ServiceItem;
 };
 
+export type AppointmentItemCreated = {
+  id: number;
+  user_id: number;
+  service_id: number;
+  start_time: string;
+  end_time: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export type PaginatedResponse<T> = {
   current_page: number;
   data: T[];
@@ -70,4 +80,10 @@ export interface UpdateServicePayload {
   description?: string;
   duration_minutes?: number;
   price?: number;
+}
+
+export interface CreateAppointmentPayload {
+  user_id: number,
+  service_id: number,
+  start_time: string
 }

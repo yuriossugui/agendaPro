@@ -63,7 +63,10 @@ class AppointmentController extends Controller
             'end_time' => $endTime,
         ]);
 
-        return response()->json($appointment, 201);
+        return response()->json([
+            'message' => 'Agendamento criado com sucesso !',
+            'data' => $appointment,
+        ]);
     }
 
     /**

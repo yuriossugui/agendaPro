@@ -95,7 +95,7 @@ class AppointmentController extends Controller
             'user_id' => 'sometimes|required|integer|exists:users,id',
             'service_id' => 'sometimes|required|integer|exists:services,id',
             'start_time' => 'sometimes|required|date_format:Y-m-d H:i:s|after_or_equal:now',
-            'status' => 'sometimes|required|string|in:scheduled,canceled',
+            'status' => 'sometimes|required|string|in:scheduled,completed,canceled',
         ]);
 
         $serviceId = $request->has('service_id') ? $request->service_id : $appointment->service_id;

@@ -13,8 +13,8 @@ export const createAppointmentSchema = z.object({
     .string()
     .min(1, 'Data e hora são obrigatórias')
     .refine(
-      (value) => /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(value),
-      'Data e hora devem estar no formato YYYY-MM-DD HH:MM:SS'
+      (value) => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value),
+      'Data e hora devem estar no formato YYYY-MM-DDTHH:MM (formato datetime-local)'
     ),
 });
 

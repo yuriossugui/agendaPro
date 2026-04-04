@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Trash2, Edit, AlertCircle, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Trash2, Edit, AlertCircle, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Table,
   TableHeader,
@@ -14,8 +14,10 @@ import { Layout } from "@/components/layout";
 import type { AppointmentItem, PaginatedResponse } from "@/types";
 import { cn } from "@/lib/utils";
 import axios from "axios";
-import { getAppointmentsRequest } from "@/services/appointment-service";
-
+import { createAppointmentRequest, getAppointmentsRequest } from "@/services/appointment-service";
+import { CreateAppointmentDialog } from "@/components/create-appointment-dialog";
+import type { CreateAppointmentFormData } from "@/schemas/create-appointment-schema";
+import { ToastContainer, useToast } from "@/components/ui/toast";
 
 const AppointmentContent: React.FC = () => {
   const [appointments, setAppointments] = useState<AppointmentItem[]>([]);
@@ -23,6 +25,7 @@ const AppointmentContent: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [paginationData, setPaginationData] = useState<PaginatedResponse<AppointmentItem> | null>(null);
+  const { toasts, addToast, removeToast } = useToast();
 
   useEffect(() => {
     loadAppointments(currentPage);
@@ -82,18 +85,53 @@ const AppointmentContent: React.FC = () => {
     console.log("Editando agendamento:", id);
   };
 
+  const handleAppointmentCreated = async (data: CreateAppointmentFormData) => {
+    try {
+
+      const response = await createAppointmentRequest(data);
+
+      addToast({
+        type: "success",
+        message: response.message || "Agendamento cadastrado com sucesso!",
+        duration: 3000,
+      });
+
+      loadAppointments(currentPage);
+      
+    } catch (err) {
+      let errorMessage = "Erro ao cadastrar agendamento";
+
+      if (axios.isAxiosError(err) && err.response?.data) {
+        const errorData = err.response.data as { message?: string; error?: string };
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+
+      addToast({
+        type: "error",
+        message: errorMessage,
+        duration: 4000,
+      });
+
+      setError(errorMessage);
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {/* Toast Container */}
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Agendamentos</h1>
           <p className="text-gray-600 mt-2">Gerencie todos os seus agendamentos</p>
         </div>
-        <Button className="gap-2 bg-blue-600 hover:bg-blue-700">
-          <Plus className="w-4 h-4" />
-          Novo Agendamento
-        </Button>
+        <CreateAppointmentDialog 
+          onAppointmentCreated={handleAppointmentCreated}
+        />
       </div>
 
       {/* Error Alert */}
@@ -140,7 +178,6 @@ const AppointmentContent: React.FC = () => {
                   <TableHeader className="bg-linear-to-r from-slate-50 to-slate-100 border-b">
                     <TableRow>
                       <TableHead className="font-semibold text-gray-700">ID</TableHead>
-                      <TableHead className="font-semibold text-gray-700">Cliente</TableHead>
                       <TableHead className="font-semibold text-gray-700">Serviço</TableHead>
                       <TableHead className="font-semibold text-gray-700">Início</TableHead>
                       <TableHead className="font-semibold text-gray-700">Término</TableHead>
@@ -161,9 +198,6 @@ const AppointmentContent: React.FC = () => {
                         >
                           <TableCell className="font-medium text-gray-900">
                             #{appointment.id}
-                          </TableCell>
-                          <TableCell className="text-gray-700 font-medium">
-                            {appointment.user?.name ?? "-"}
                           </TableCell>
                           <TableCell className="text-gray-700">
                             <div className="flex flex-col">
@@ -222,7 +256,7 @@ const AppointmentContent: React.FC = () => {
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={8} className="text-center py-12">
+                        <TableCell colSpan={7} className="text-center py-12">
                           <div className="flex flex-col items-center gap-2">
                             <div className="text-4xl">📭</div>
                             <p className="text-gray-600 font-medium">Nenhum agendamento encontrado</p>

@@ -24,7 +24,7 @@ export type AppointmentItem = {
   service_id: number;
   start_time: string;
   end_time: string;
-  status: "scheduled" | "completed" | "cancelled" | "no-show";
+  status: "scheduled" | "completed" | "canceled" | "no-show";
   created_at?: string;
   updated_at?: string;
   deleted_at?: string | null;
@@ -86,4 +86,11 @@ export interface CreateAppointmentPayload {
   user_id: number,
   service_id: number,
   start_time: string
+}
+
+export interface UpdateAppointmentPayload {
+  user_id?: number;
+  service_id?: number;
+  start_time?: string;
+  status?: string;
 }

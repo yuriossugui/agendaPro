@@ -14,9 +14,11 @@ import { Layout } from "@/components/layout";
 import type { AppointmentItem, PaginatedResponse } from "@/types";
 import { cn } from "@/lib/utils";
 import axios from "axios";
-import { createAppointmentRequest, getAppointmentsRequest } from "@/services/appointment-service";
+import { createAppointmentRequest, getAppointmentsRequest, updateAppointmentRequest } from "@/services/appointment-service";
 import { CreateAppointmentDialog } from "@/components/create-appointment-dialog";
+import { EditAppointmentDialog } from "@/components/edit-appointment-dialog";
 import type { CreateAppointmentFormData } from "@/schemas/create-appointment-schema";
+import type { UpdateServiceFormData } from "@/schemas/update-appointment-schema";
 import { ToastContainer, useToast } from "@/components/ui/toast";
 
 const AppointmentContent: React.FC = () => {
@@ -25,6 +27,8 @@ const AppointmentContent: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [paginationData, setPaginationData] = useState<PaginatedResponse<AppointmentItem> | null>(null);
+  const [editingAppointment, setEditingAppointment] = useState<AppointmentItem | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const { toasts, addToast, removeToast } = useToast();
 
   useEffect(() => {
@@ -77,12 +81,61 @@ const AppointmentContent: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
-    setAppointments(appointments.filter((appointment) => appointment.id !== id));
+    // TODO: Implementar lógica de exclusão com requisição ao servidor
+    console.log("Deletando agendamento:", id);
   };
 
-  const handleEdit = (id: number) => {
-    // TODO: Implementar lógica de edição
-    console.log("Editando agendamento:", id);
+  const handleEdit = (appointment: AppointmentItem) => {
+    setEditingAppointment(appointment);
+    setEditDialogOpen(true);
+  };
+
+  const handleEditDialogOpenChange = (open: boolean) => {
+    setEditDialogOpen(open);
+    if (!open) {
+      setEditingAppointment(null);
+    }
+  };
+
+  const handleAppointmentUpdated = async (data: UpdateServiceFormData) => {
+    try {
+      if (!editingAppointment) {
+        throw new Error("Nenhum agendamento selecionado para edição");
+      }
+
+      const response = await updateAppointmentRequest(editingAppointment.id,data);
+
+      addToast({
+        type: "success",
+        message: response.message || "Agendamento atualizado com sucesso!",
+        duration: 3000,
+      });
+
+      setEditDialogOpen(false);
+      setEditingAppointment(null);
+
+      loadAppointments(currentPage);
+    } catch (err) {
+      let errorMessage = "Erro ao atualizar agendamento";
+
+      if (axios.isAxiosError(err) && err.response?.data) {
+        const errorData = err.response.data as {
+          message?: string;
+          error?: string;
+        };
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+
+      addToast({
+        type: "error",
+        message: errorMessage,
+        duration: 4000,
+      });
+
+      setError(errorMessage);
+    }
   };
 
   const handleAppointmentCreated = async (data: CreateAppointmentFormData) => {
@@ -218,11 +271,15 @@ const AppointmentContent: React.FC = () => {
                             {formatDate(appointment.end_time)}
                           </TableCell>
                           <TableCell className="text-gray-600">
-                            <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                            <span className={cn(
+                              "inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium",
+                              appointment.status === "scheduled" && "bg-blue-50 text-blue-700",
+                              appointment.status === "completed" && "bg-green-50 text-green-700",
+                              appointment.status === "canceled" && "bg-red-50 text-red-700"
+                            )}>
                               {appointment.status === "scheduled" && "Agendado"}
                               {appointment.status === "completed" && "Concluído"}
-                              {appointment.status === "cancelled" && "Cancelado"}
-                              {appointment.status === "no-show" && "Não compareceu"}
+                              {appointment.status === "canceled" && "Cancelado"}
                             </span>
                           </TableCell>
                           <TableCell className="text-gray-700 font-semibold">
@@ -236,7 +293,7 @@ const AppointmentContent: React.FC = () => {
                                 size="sm"
                                 variant="outline"
                                 className="h-9 w-9 p-0 hover:bg-blue-50 border-blue-200"
-                                onClick={() => handleEdit(appointment.id)}
+                                onClick={() => handleEdit(appointment)}
                                 title="Editar"
                               >
                                 <Edit className="w-4 h-4 text-blue-600" />
@@ -324,6 +381,16 @@ const AppointmentContent: React.FC = () => {
             </Card>
           )}
         </>
+      )}
+
+      {/* Edit Appointment Dialog */}
+      {editingAppointment && (
+        <EditAppointmentDialog
+          appointment={editingAppointment}
+          isOpen={editDialogOpen}
+          onOpenChange={handleEditDialogOpenChange}
+          onAppointmentUpdated={handleAppointmentUpdated}
+        />
       )}
     </div>
   );

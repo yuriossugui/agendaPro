@@ -4,7 +4,6 @@ import {
   Menu,
   X,
   Calendar,
-  Settings,
   Wrench,
   LogOut,
 } from "lucide-react";
@@ -37,12 +36,7 @@ export function Sidebar({ isOpen = true, onClose, onCollapseChange }: SidebarPro
       label: "Agendamentos",
       href: "/appointment",
       icon: Calendar,
-    },
-    {
-      label: "Configurações",
-      href: "/settings",
-      icon: Settings,
-    },
+    }
   ];
 
   const isActive = (href: string) => location.pathname === href;

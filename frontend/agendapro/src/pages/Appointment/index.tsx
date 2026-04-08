@@ -10,11 +10,19 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Layout } from "@/components/layout";
 import type { AppointmentItem, PaginatedResponse } from "@/types";
 import { cn } from "@/lib/utils";
 import axios from "axios";
-import { createAppointmentRequest, getAppointmentsRequest, updateAppointmentRequest } from "@/services/appointment-service";
+import { createAppointmentRequest, deleteAppointmentRequest, getAppointmentsRequest, updateAppointmentRequest } from "@/services/appointment-service";
 import { CreateAppointmentDialog } from "@/components/create-appointment-dialog";
 import { EditAppointmentDialog } from "@/components/edit-appointment-dialog";
 import type { CreateAppointmentFormData } from "@/schemas/create-appointment-schema";
@@ -29,6 +37,9 @@ const AppointmentContent: React.FC = () => {
   const [paginationData, setPaginationData] = useState<PaginatedResponse<AppointmentItem> | null>(null);
   const [editingAppointment, setEditingAppointment] = useState<AppointmentItem | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [appointmentToDelete, setAppointmentToDelete] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { toasts, addToast, removeToast } = useToast();
 
   useEffect(() => {
@@ -81,8 +92,8 @@ const AppointmentContent: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
-    // TODO: Implementar lógica de exclusão com requisição ao servidor
-    console.log("Deletando agendamento:", id);
+    setAppointmentToDelete(id);
+    setDeleteConfirmOpen(true);
   };
 
   const handleEdit = (appointment: AppointmentItem) => {
@@ -168,6 +179,46 @@ const AppointmentContent: React.FC = () => {
       });
 
       setError(errorMessage);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (appointmentToDelete === null) return;
+
+    setIsDeleting(true);
+    try {
+      
+      const response = await deleteAppointmentRequest(appointmentToDelete);
+      
+      addToast({
+        type: "success",
+        message: response.message || "Agendamento excluído com sucesso!",
+        duration: 3000,
+      });
+
+      setDeleteConfirmOpen(false);
+      setAppointmentToDelete(null);
+      loadAppointments(currentPage);
+
+    } catch (err) {
+      let errorMessage = "Erro ao excluir agendamento";
+
+      if (axios.isAxiosError(err) && err.response?.data) {
+        const errorData = err.response.data as { message?: string; error?: string };
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+
+      addToast({
+        type: "error",
+        message: errorMessage,
+        duration: 4000,
+      });
+
+      setError(errorMessage);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -392,6 +443,44 @@ const AppointmentContent: React.FC = () => {
           onAppointmentUpdated={handleAppointmentUpdated}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-red-600">Confirmar Exclusão</DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja excluir este agendamento? Esta ação não pode ser desfeita.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-3 sm:gap-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setDeleteConfirmOpen(false)}
+              disabled={isDeleting}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleConfirmDelete}
+              disabled={isDeleting}
+              className="gap-2"
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Excluindo...
+                </>
+              ) : (
+                "Excluir"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

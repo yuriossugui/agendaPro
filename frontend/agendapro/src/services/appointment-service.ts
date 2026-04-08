@@ -18,3 +18,8 @@ export async function updateAppointmentRequest(id: number, data: UpdateAppointme
   const response = await api.put<ApiResponse<AppointmentItemCreated>>(`/appointments/${id}`, data);
   return response.data;
 }
+
+export async function deleteAppointmentRequest(id: number){
+  const response = await api.delete<ApiResponse<void>>(`/appointments/${id}`);
+  return response.data;
+}
